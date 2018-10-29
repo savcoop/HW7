@@ -24,16 +24,24 @@ def getSumSpans(url):
 
 
 def followLinks(url, numAnchor, numTimes):
-    """ Repeat for numTimes. Find the url at numAnchor position (the first link is at position 1) at
-        the current url and use that as the new url
-        return the text in the a tag from the last url that you process
+	ctx = ssl.create_default_context()
+	ctx.check_hostname = False 
+	ctx.verify_mode = ssl.CERT_NONE
 
-        url -- a uniform resource locator - address for a web page
-        numAnchor -- the position of the anchor (a tag) you are looking at on the page - the first link is position 1
-        numTimes -- the number of times to repeat the process of finding the new url
-    """
+	html = urlopen(url, context =ctx).read()
 
-    pass
+	list_of_names = []
+	for x in range(numTimes): 
+		soup = BeautifulSoup(html, 'html.parser')
+		a_tag = soup.find_all('a')
+		new_link = a_tag[numAnchor-1]
+		list_of_names.append(new_link.text)
+		new_url = new_link['href']
+		
+		html = urlopen(new_url, context =ctx).read()
+
+	return list_of_names[-1]
+    
 
 def getGradeHistogram(url):
     """ return a sorted tuple with the grade range (such as 90, 80, etc) and the number of grades in that range
