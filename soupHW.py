@@ -5,15 +5,23 @@ from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import ssl
 import unittest
+import re 
 
 def getSumSpans(url):
-    """ return a sum of all of the text values in the span tags at the passed url
+	ctx = ssl.create_default_context()
+	ctx.check_hostname = False 
+	ctx.verify_mode = ssl.CERT_NONE
 
-        url -- a uniform resource locator - address for a web page
+	html = urlopen(url, context =ctx).read()
+	soup = BeautifulSoup(html, 'html.parser')
+	span_tags = soup.find_all('span')
+	total = 0 
+	for n in span_tags:
+		nums = re.findall(r'\b\d+\b', n.text)
+		for x in nums:
+			total += int(x)
+	return total
 
-    """
-
-    pass
 
 def followLinks(url, numAnchor, numTimes):
     """ Repeat for numTimes. Find the url at numAnchor position (the first link is at position 1) at
